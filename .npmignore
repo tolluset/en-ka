@@ -1,0 +1,50 @@
+# Source code
+src/
+tsconfig.json
+*.ts
+
+# Development files
+.env*
+.DS_Store
+
+# Git and GitHub
+.git/
+.gitignore
+.github/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build artifacts
+*.tsbuildinfo
+
+# Cache files
+.en-ka/
+
+# Development dependencies
+node_modules/
+
+# Documentation source (keep README.md)
+docs/
+
+# Test files
+tests/
+test/
+*.test.*
+*.spec.*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Downloaded dictionary data (users download it themselves)
+data/jmdict*.json
