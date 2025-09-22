@@ -2,15 +2,24 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { EnglishToKatakanaConverter } from './converter.js';
 import { type ConversionResult } from './types.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Read version from package.json
+const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
 
 const program = new Command();
 
 program
   .name('en-ka')
   .description('English to Katakana converter using JMDict')
-  .version('1.0.0');
+  .version(packageJson.version);
 
 program
   .argument('<word>', 'English word or phrase to convert')

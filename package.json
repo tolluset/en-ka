@@ -1,6 +1,6 @@
 {
   "name": "en-ka",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "English to Katakana CLI converter using JMDict",
   "type": "module",
   "main": "dist/index.js",
@@ -29,6 +29,7 @@
   },
   "files": [
     "dist",
+    "package.json",
     "README.md",
     "LICENSE"
   ],
