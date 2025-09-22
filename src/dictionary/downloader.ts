@@ -1,4 +1,4 @@
-import { writeFileSync, existsSync, mkdirSync, createWriteStream } from 'fs';
+import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { exec } from 'child_process';

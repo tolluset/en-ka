@@ -59,6 +59,7 @@ export interface SearchOptions {
 }
 
 export interface IndexedDictionary {
+  entries: Map<string, JMDictEntry>;
   englishToJapanese: Map<string, JMDictEntry[]>;
   katakanaWords: Set<string>;
   lastUpdated: Date;

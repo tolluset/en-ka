@@ -14,17 +14,17 @@ A CLI tool that converts English words to Japanese Katakana using the comprehens
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/en-ka.git
+git clone https://github.com/tolluset/en-ka.git
 cd en-ka
 
 # Install dependencies
-npm install
+pnpm install
 
 # Build the project
-npm run build
+pnpm run build
 
 # Install globally (optional)
-npm install -g .
+pnpm install -g .
 ```
 
 ## Usage
@@ -123,18 +123,18 @@ The dictionary is automatically downloaded on first use of the application.
 
 ```bash
 # Development mode
-npm run dev
+pnpm run dev
 
 # Type checking
-npm run lint:type-check
+pnpm run lint:type-check
 
 # Linting
-npm run lint-fix
+pnpm run lint-fix
 
 # Build
-npm run build
+pnpm run build
 ```
 
 ## License
 
-MIT
+Creative Commons Attribution-ShareAlike 4.0 International License

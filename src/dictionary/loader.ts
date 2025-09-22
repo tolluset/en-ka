@@ -38,10 +38,14 @@ export class DictionaryLoader {
   }
 
   private buildIndex(entries: JMDictEntry[]): IndexedDictionary {
+    const entriesMap = new Map<string, JMDictEntry>();
     const englishToJapanese = new Map<string, JMDictEntry[]>();
     const katakanaWords = new Set<string>();
 
     for (const entry of entries) {
+      // Store entry by ID for quick lookup
+      entriesMap.set(entry.id, entry);
+
       // Extract katakana readings
       for (const kana of entry.kana) {
         if (this.isKatakana(kana.text)) {
@@ -71,6 +75,7 @@ export class DictionaryLoader {
     }
 
     return {
+      entries: entriesMap,
       englishToJapanese,
       katakanaWords,
       lastUpdated: new Date()
