@@ -52,7 +52,19 @@ export interface ConversionResult {
   common: boolean;
 }
 
+export type SearchMode = 'strict' | 'normal' | 'broad';
+
+export type MatchType = 'exact' | 'primary' | 'compound' | 'description';
+
+export interface ScoredResult {
+  entry: JMDictEntry;
+  score: number;  // 0-100
+  matchType: MatchType;
+  matchedTerm: string;
+}
+
 export interface SearchOptions {
+  mode?: SearchMode;
   fuzzy?: boolean;
   maxResults?: number;
   verbose?: boolean;
@@ -60,7 +72,9 @@ export interface SearchOptions {
 
 export interface IndexedDictionary {
   entries: Map<string, JMDictEntry>;
-  englishToJapanese: Map<string, JMDictEntry[]>;
+  exactMatches: Map<string, ScoredResult[]>;      // Exact word matches
+  compoundWords: Map<string, ScoredResult[]>;     // Words in compound phrases
+  descriptionOnly: Map<string, ScoredResult[]>;   // Words only in descriptions
   katakanaWords: Set<string>;
   lastUpdated: Date;
 }

@@ -1,7 +1,7 @@
 {
   "name": "en-ka",
-  "version": "1.1.1",
-  "description": "English to Katakana CLI converter using JMDict",
+  "version": "1.2.0",
+  "description": "Smart English to Katakana CLI converter with intelligent search modes",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

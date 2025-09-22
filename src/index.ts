@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { EnglishToKatakanaConverter } from './converter.js';
-import { type ConversionResult } from './types.js';
+import { type ConversionResult, type SearchMode } from './types.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,7 +23,8 @@ program
 
 program
   .argument('<word>', 'English word or phrase to convert')
-  .option('--no-fuzzy', 'Disable fuzzy search (exact match only)')
+  .option('--mode <mode>', 'Search mode: strict (exact), normal (compound), broad (all)', 'strict')
+  .option('--fuzzy', 'Enable fuzzy search for approximate matches')
   .option('-v, --verbose', 'Show detailed information including romaji and meaning')
   .option('-m, --max <number>', 'Maximum number of results (default: 10)', '10')
   .action(async (word: string, options) => {
@@ -33,14 +34,38 @@ program
       console.log(chalk.blue('Loading dictionary...'));
       await converter.initialize();
 
+      // Validate search mode
+      const validModes: SearchMode[] = ['strict', 'normal', 'broad'];
+      const searchMode = options.mode as SearchMode;
+      if (!validModes.includes(searchMode)) {
+        console.error(chalk.red(`Invalid mode "${options.mode}". Valid modes are: strict, normal, broad`));
+        process.exit(1);
+      }
+
       const results = await converter.convert(word, {
-        fuzzy: options.fuzzy !== false, // fuzzy is true by default unless --no-fuzzy is used
+        mode: searchMode,
+        fuzzy: options.fuzzy === true, // fuzzy is false by default, enabled with --fuzzy
         verbose: options.verbose,
         maxResults: parseInt(options.max)
       });
 
       if (results.length === 0) {
         console.log(chalk.red(`No results found for "${word}"`));
+
+        // Suggest trying different modes if in strict mode
+        if (searchMode === 'strict') {
+          console.log(chalk.yellow('\nTry different search modes:'));
+          console.log(chalk.gray(`  en-ka ${word} --mode normal   # Include compound words`));
+          console.log(chalk.gray(`  en-ka ${word} --mode broad    # Include all related terms`));
+          console.log(chalk.gray(`  en-ka ${word} --fuzzy         # Enable fuzzy matching`));
+        } else if (searchMode === 'normal') {
+          console.log(chalk.yellow('\nTry broader search:'));
+          console.log(chalk.gray(`  en-ka ${word} --mode broad    # Include all related terms`));
+          console.log(chalk.gray(`  en-ka ${word} --fuzzy         # Enable fuzzy matching`));
+        } else {
+          console.log(chalk.yellow('\nTry fuzzy search:'));
+          console.log(chalk.gray(`  en-ka ${word} --fuzzy         # Enable fuzzy matching`));
+        }
 
         // Show suggestions
         const suggestions = await converter.searchSuggestions(word.slice(0, 3));

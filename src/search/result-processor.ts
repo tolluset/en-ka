@@ -1,4 +1,4 @@
-import type { JMDictEntry, ConversionResult } from '../types.js';
+import type { JMDictEntry, ConversionResult, ScoredResult } from '../types.js';
 import { JapaneseConverter } from '../utils/japanese-converter.js';
 
 /**
@@ -53,7 +53,37 @@ export class ResultProcessor {
   }
 
   /**
-   * Sort results by relevance (common words first)
+   * Process scored results into conversion results with proper sorting
+   */
+  static processScoredResults(scoredResults: ScoredResult[]): ConversionResult[] {
+    // Sort by score first, then by commonality
+    const sortedScored = scoredResults.sort((a, b) => {
+      // Primary sort: by score
+      if (a.score !== b.score) return b.score - a.score;
+
+      // Secondary sort: by commonality (common entries first)
+      const aCommon = a.entry.kana.some(k => k.common) || false;
+      const bCommon = b.entry.kana.some(k => k.common) || false;
+      if (aCommon && !bCommon) return -1;
+      if (!aCommon && bCommon) return 1;
+
+      // Tertiary sort: alphabetically by first katakana reading
+      const aKatakana = a.entry.kana.find(k => this.isKatakana(k.text))?.text || '';
+      const bKatakana = b.entry.kana.find(k => this.isKatakana(k.text))?.text || '';
+      return aKatakana.localeCompare(bKatakana);
+    });
+
+    const results: ConversionResult[] = [];
+    for (const scoredResult of sortedScored) {
+      const conversions = this.entryToConversions(scoredResult.entry);
+      results.push(...conversions);
+    }
+
+    return this.deduplicateResults(results);
+  }
+
+  /**
+   * Sort results by relevance (common words first) - legacy method
    */
   static sortByRelevance(results: ConversionResult[]): ConversionResult[] {
     return results.sort((a, b) => {
@@ -74,5 +104,9 @@ export class ResultProcessor {
     return entry.kanji?.find(k =>
       !kana.appliesToKanji || kana.appliesToKanji.includes(k.text)
     );
+  }
+
+  private static isKatakana(text: string): boolean {
+    return /^[\u30A0-\u30FF\u30FC\u3099\u309A]+$/.test(text);
   }
 }

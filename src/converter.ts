@@ -1,4 +1,4 @@
-import type { ConversionResult, SearchOptions, IndexedDictionary } from './types.js';
+import type { ConversionResult, SearchOptions, SearchMode, ScoredResult, IndexedDictionary } from './types.js';
 import { DictionaryLoader } from './dictionary/loader.js';
 import { SearchEngine } from './search/search-engine.js';
 import { ResultProcessor } from './search/result-processor.js';
@@ -29,25 +29,26 @@ export class EnglishToKatakanaConverter {
   async convert(englishText: string, options: SearchOptions = {}): Promise<ConversionResult[]> {
     await this.ensureInitialized();
 
-    const { fuzzy: useFuzzy = false, maxResults = 10 } = options;
+    const {
+      mode = 'strict',
+      fuzzy: useFuzzy = false,
+      maxResults = 10
+    } = options;
     const query = englishText.toLowerCase().trim();
 
-    let entryIds: string[] = [];
+    let scoredResults: ScoredResult[] = [];
 
-    // Try direct match first
-    entryIds = this.searchEngine!.findDirectMatches(query);
+    // Try scored matches based on mode
+    scoredResults = this.searchEngine!.findScoredMatches(query, mode);
 
-    // Fall back to fuzzy search if no direct matches and fuzzy is enabled
-    if (entryIds.length === 0 && useFuzzy) {
-      entryIds = this.searchEngine!.findFuzzyMatches(query);
+    // Fall back to fuzzy search if no matches and fuzzy is enabled
+    if (scoredResults.length === 0 && useFuzzy) {
+      scoredResults = this.searchEngine!.findFuzzyMatches(query, mode, maxResults);
     }
 
-    // Convert entry IDs to conversion results
-    const results = this.processEntryIds(entryIds);
-
-    // Sort and limit results
-    const sortedResults = ResultProcessor.sortByRelevance(results);
-    return sortedResults.slice(0, maxResults);
+    // Process scored results into conversion results with proper sorting
+    const results = ResultProcessor.processScoredResults(scoredResults);
+    return results.slice(0, maxResults);
   }
 
   /**
@@ -64,6 +65,7 @@ export class EnglishToKatakanaConverter {
     }
   }
 
+  // Legacy method - kept for compatibility if needed
   private processEntryIds(entryIds: string[]): ConversionResult[] {
     const results: ConversionResult[] = [];
 
